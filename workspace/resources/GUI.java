@@ -37,8 +37,6 @@ private static final int CARD_HEIGHT = 150;
 private static final int HAND_OVERLAP = CARD_WIDTH / 4;
 
 
-
-
 private JLabel trumpLabel;
 private JLabel endGame;
 private JLabel turnIndicator; 
@@ -260,7 +258,10 @@ private JButton takeCardsNorth;
 	   // Pre: None.
 	   // Post: Updates the GUI to reflect the current game state.
 	   private void updateDisplay() {
-    		if (game == null) {
+        //ask the server for "the game"
+        //TODO: add a if statement that says "only do the stuff below once you receive a new Durak object for game from server."
+    	if(0!=1){	
+            if (game == null) {
 				
 				return;
 	 		} 
@@ -328,6 +329,7 @@ private JButton takeCardsNorth;
 				center.add(playArea);
 			}
 			repaint();
+        }
 			
     	}
        
@@ -400,16 +402,19 @@ private JButton takeCardsNorth;
                     }
                 }
             }
-            
+            //MOVE TO DURAK-TELL DURAK WHAT THE MOVE IS
             // Switch-based action handler
             if (c1InAttackerHand && !isCard2OnTable) { 
                 // Attacker playing a new attack card
                 System.out.println("Player " + attackingPlayer + " attacking with " + card1);
+                //the actual server needs to know stuff step
                 game.doMove(card1, null);
+                //TODO send game to server
             } else if (!c1InAttackerHand && isCard2OnTable) {
                 // Defender playing a defense card against an attack card
                 System.out.println("Player " + defendingPlayer + " defending against " + card2 + " with " + card1);
                 game.doMove(card1, card2);
+
             } else {
                 System.out.println("Invalid move!");
             }

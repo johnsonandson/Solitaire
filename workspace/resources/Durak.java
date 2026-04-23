@@ -1,13 +1,104 @@
 //Sophia Babayev / 12/16/2025 / Durak Game Implementation
 package resources;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+//Either Make this the server, or make Durak in server. GUI tells durak what the action is, Durak 
 
-public class Durak {
+
+public class Durak implements serializable {
+    
+
+    public static final int LISTENING_PORT = 9876;
+    
+	public static void main(String[] args) {
+		Durak game = new Durak();
+		GUI gui = new GUI(game);
+//pre condition: chat server is initialized
+//post condition: server listens to port
+
+    //pre condition: chat is initialized
+    //Post condition: server records the port and shuts down when hit with an error or disconnect
+    
+        ServerSocket listener;
+        Socket connection;
+        try{
+            listener=new ServerSocket(LISTENING_PORT);
+            System.out.println("Listening on port "+LISTENING_PORT);
+            while(true){
+                connection=listener.accept();
+                ConnectionHandler h=new ConnectionHandler(connection);
+                h.start();
+
+            }
+        }
+        catch(Exception e){
+            System.out.println("Server down"+"\n"+"error"+e);
+            return;
+        }
+    }
+    /**
+     *  Defines a thread that handles the connection with one
+     *  client.
+     */
+
+    //pre conditon: socket is initialized
+    //post condition: Initialize ConnectionHandler to set streams and add handlers
+    private static class ConnectionHandler extends Thread {
+        private static volatile ArrayList<ConnectionHandler> handlers;
+        Socket client;
+        ObjectInputStream ois;
+        ObjectOutputStream oos;
+        
+        
+        ConnectionHandler(Socket socket) {
+            client = socket;
+            if (handlers==null){
+                handlers=new ArrayList<ConnectionHandler>();
+            }
+            handlers.add(this);
+            try {
+                oos=new ObjectOutputStream(client.getOutputStream());
+                ois=new ObjectInputStream(client.getInputStream());
+            }
+            catch(Exception e){
+                
+            }
+
+        }
+    }
+    
+	// Pre: None.
+	// Post: Sets up a new game with deck, hands, and trump.
+	public Durak() {
+        columns = new ArrayList<>();
+        hand1 = new ArrayList<>();
+        hand2 = new ArrayList<>();
+        graveyard = new ArrayList<>();
+        deck = new LinkedList<>();
+
+        Deck();
+        shuffleDeck();
+        pickTrump();          // sets trumpCard (bottom card of deck)
+        dealInitialHands(6);
+		//shortCutEnd();
+        while(true){
+        //TODO: Listener, add connections
+        }
+    }
+
+
+
+    
+
+    //TODO: Add connections
 	ArrayList<Stack <Card>> columns;
 	Queue<Card> deck;
 	ArrayList<Card> graveyard;
@@ -20,6 +111,13 @@ public class Durak {
     private ArrayList<Card> hand1;
     private ArrayList<Card> hand2;
 
+
+    
+    public void swapHand(){
+        ArrayList<Card> temp = hand1;
+        hand1 = hand2;
+        hand2 = temp;
+    }
 
     // Pre: None.
     // Post: Returns player 1's hand. 
@@ -67,21 +165,6 @@ public class Durak {
     }
 
 
-	// Pre: None.
-	// Post: Sets up a new game with deck, hands, and trump.
-	public Durak() {
-        columns = new ArrayList<>();
-        hand1 = new ArrayList<>();
-        hand2 = new ArrayList<>();
-        graveyard = new ArrayList<>();
-        deck = new LinkedList<>();
-
-        Deck();
-        shuffleDeck();
-        pickTrump();          // sets trumpCard (bottom card of deck)
-        dealInitialHands(6);
-		//shortCutEnd();
-    }
 
 
 	// Pre: None.
@@ -411,6 +494,4 @@ public class Durak {
 
 
     
-	
-
 }
